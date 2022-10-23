@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  btp-subway:
+    image: floste/subway-service-broker:latest
+    container_name: subway-service-broker
+    ports:
+      - 8080:8080
+    environment:
+      - BROKER_USER=${BROKER_USER}
+      - BROKER_PASSWORD=${BROKER_PASSWORD}
+    networks:
+      - subway-net
+    depends_on:
+      - ngrok
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./conf/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./key.pem:/root/ssl/key.pem
+      - ./cert.pem:/root/ssl/cert.pem
+    networks:
+      - subway-net
+  ngrok:
+    image: wernight/ngrok:latest
+    ports:
+      - 4040:4040
+    environment:
+      - NGROK_REGION=eu
+      - NGROK_AUTH=${NGROK_AUTH_TOKEN}
+      - NGROK_PORT=nginx:443
+      - NGROK_DEBUG=true
+    networks:
+      - subway-net
+networks:
+  subway-net:
+    driver: bridge
+volumes:
+  nginx_data:
+    driver: local
