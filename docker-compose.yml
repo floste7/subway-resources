@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  btp-subway:
+  subway-service-broker:
     image: floste/subway-service-broker:latest
     container_name: subway-service-broker
     ports:
